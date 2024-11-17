@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контроль вивчення іноземної мови</title>
+    <style>
+        *,
+        *:after,
+        *:before {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url(background6.jpg);
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.384);
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-height: 1000px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .game-info p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .word-card-wrapper {
+            width: 100%;
+            height: 120px;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .word-card {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #user-input {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%;
+            background-color: #a744b0;
+            color: #fff;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #8e39a0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 43%;
+            left: 50%;
+            transform: translate(-50%, -20%);
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #close-modal {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #close-modal:hover {
+            background-color: #8739d5;
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        
+        .radio-box {
+            position: relative;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            align-items: center;
+            padding-left: 20px;
+        }
+
+        .radio-btn {
+            position: absolute;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .radio-label {
+            position: relative;
+            width: auto;
+            color: #4c4c4c;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            padding-left: 40px;
+            margin: 0 10px;
+            line-height: 2;
+            transition: all 0.3s ease-in-out;
+            border-radius: 8px;
+        }
+
+        .radio-label::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 2px solid #4c4c4c;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .radio-label:hover {
+            background-color: #f5f5f5;
+        }
+
+        .radio-btn:checked + .radio-label {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .radio-btn:checked + .radio-label::before {
+            background-color: #3498db;
+            border-color: #3498db;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .radio-btn:checked + .radio-label::after {
+            content: '✔';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .radio-btn:not(:checked) + .radio-label::after {
+            content: '';
+        }
+
+    
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .game-info p {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 18px;
+            }
+
+            #user-input {
+                font-size: 16px;
+            }
+
+            .radio-label {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Контроль вивчення іноземної мови</h1>
+        <div class="game-info">
+            <p>Крок: <span id="current-step">1</span> з <span id="total-steps">10</span></p>
+            <p class="score-board">Правильних відповідей: <span id="correct-count">0</span> | Неправильних відповідей: <span id="incorrect-count">0</span></p>
+        </div>
+        <div class="word-card-wrapper">
+            <div id="word-card" class="word-card"></div>
+        </div>
+        
+       
+        <div class="radio-box">
+            <input class="radio-btn" type="radio" name="difficulty" value="easy" id="easy">
+            <label class="radio-label" for="easy">Легкий</label>
+            <input class="radio-btn" type="radio" name="difficulty" value="medium" id="medium" checked>
+            <label class="radio-label" for="medium">Середній</label>
+            <input class="radio-btn" type="radio" name="difficulty" value="hard" id="hard">
+            <label class="radio-label" for="hard">Важкий</label>
+        </div>
+
+        <input type="text" id="user-input" placeholder="Введіть переклад">
+        <button id="restart-game">Рестарт</button>
+        <button id="check-answer">Перевірити</button>
+        <div id="error-message" class="error-message"></div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>Ваш рівень знань: <span id="knowledge-level"></span></h2>
+                <button id="close-modal">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let selectedDifficulty = 'medium'; 
+            let currentStep = 1;
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+            let totalSteps = 10;
+            
+            const wordCard = $('#word-card');
+            const currentStepEl = $('#current-step');
+            const totalStepsEl = $('#total-steps');
+            const correctCountEl = $('#correct-count');
+            const incorrectCountEl = $('#incorrect-count');
+            const errorMessage = $('#error-message');
+            const modal = $('#modal');
+            const knowledgeLevel = $('#knowledge-level');
+
+            const words = {
+                easy: { 
+                    "cat": "кіт", 
+                    "house": "будинок", 
+                    "dog": "собака", 
+                    "book": "книга", 
+                    "pen": "ручка",
+                    "car": "автомобіль",
+                    "apple": "яблуко",
+                    "window": "вікно",
+                    "school": "школа",
+                    "tree": "дерево"
+                },
+                medium: {
+                    "computer": "комп'ютер",
+                    "university": "університет",
+                    "telephone": "телефон",
+                    "restaurant": "ресторан",
+                    "mountain": "гора",
+                    "airplane": "літак",
+                    "language": "мова",
+                    "music": "музика",
+                    "picture": "картина",
+                    "garden": "сад"
+                },
+                hard: {
+                    "philosophy": "філософія",
+                    "revolution": "революція",
+                    "superintendent": "інспектор",
+                    "hypothesis": "гіпотеза",
+                    "antidisestablishmentarianism": "антідискестаблішментаріанізм",
+                    "unbelievable": "неймовірний",
+                    "confidential": "конфіденційний",
+                    "reconciliation": "примирення",
+                    "quintessential": "зразковий",
+                    "incomprehensible": "непорозумілий"
+                }
+            };
+
+            function getRandomWord() {
+                const currentWords = words[selectedDifficulty];
+                const keys = Object.keys(currentWords);
+                const randomKey = keys[Math.floor(Math.random() * keys.length)];
+                return { word: randomKey, translation: currentWords[randomKey] };
+            }
+
+            function setWord() {
+                const { word, translation } = getRandomWord();
+                wordCard.text(word);
+                return translation;
+            }
+
+            function checkAnswer(correctTranslation) {
+                const userAnswer = $('#user-input').val().trim().toLowerCase();
+                if (userAnswer === correctTranslation) {
+                    correctAnswers++;
+                    correctCountEl.text(correctAnswers);
+                    errorMessage.text('');
+                    return true;
+                } else {
+                    incorrectAnswers++;
+                    incorrectCountEl.text(incorrectAnswers);
+                    errorMessage.text('Неправильний переклад');
+                    return false;
+                }
+            }
+
+            function nextStep() {
+                if (currentStep <= totalSteps) {
+                    currentStep++;
+                    currentStepEl.text(currentStep);
+                    $('#user-input').val('');
+                    errorMessage.text('');
+                    setWord();
+                } else {
+                    endGame();
+                }
+            }
+
+            function endGame() {
+                let level = '';
+                const accuracy = (correctAnswers / totalSteps) * 100;
+                if (accuracy >= 80) {
+                    level = 'Високий';
+                } else if (accuracy >= 50) {
+                    level = 'Середній';
+                } else {
+                    level = 'Низький';
+                }
+                knowledgeLevel.text(level);
+                modal.show();
+            }
+
+            $('#check-answer').click(function () {
+    const userAnswer = $('#user-input').val().trim(); 
+    if (!userAnswer) { 
+        errorMessage.text('Введіть ререклад'); 
+        return;
+    }
+    const correctTranslation = setWord(); 
+    if (checkAnswer(correctTranslation)) {
+        nextStep();
+    }
+});
+
+            $('#restart-game').click(function() {
+                currentStep = 1;
+                correctAnswers = 0;
+                incorrectAnswers = 0;
+                currentStepEl.text(currentStep);
+                correctCountEl.text(correctAnswers);
+                incorrectCountEl.text(incorrectAnswers);
+                errorMessage.text('');
+                $('#user-input').val('');
+                setWord();
+            });
+
+            $('#close-modal').click(function() {
+                modal.hide();
+            });
+
+            $('input[name="difficulty"]').change(function() {
+                selectedDifficulty = $('input[name="difficulty"]:checked').val();
+                setWord();
+            });
+
+            setWord();
+        });
+    </script>
+</body>
+</html
